@@ -1,0 +1,14 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: kijani-staging
+resources:
+  - ../../kk-api-configmap.yaml
+  - ../../kk-api-deployment.yaml
+  - ../../kk-api-service.yaml
+  - ../../kk-payments-configmap.yaml
+  - ../../kk-payments-deployment.yaml
+  - ../../kk-payments-service.yaml
+  - ../../kijani-ingress.yaml
+  - ../../namespaces/kijani-staging.yaml
+patchesStrategicMerge:
+  - patch-kk-payments-configmap.yaml

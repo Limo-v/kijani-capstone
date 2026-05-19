@@ -1,0 +1,13 @@
+groups:
+  - name: kk-payments.rules
+    rules:
+      - alert: KKPaymentsPodRestartSpike
+        expr: increase(kube_pod_container_status_restarts_total{namespace="kijani-staging",container="kk-payments"}[10m]) > 2
+        for: 2m
+        labels:
+          severity: warning
+          service: kk-payments
+          env: staging
+        annotations:
+          summary: "kk-payments restart spike in staging"
+          description: "kk-payments restarted more than 2 times in 10 minutes in kijani-staging"
