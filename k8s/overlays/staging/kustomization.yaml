@@ -12,3 +12,4 @@ resources:
   - ../../namespaces/kijani-staging.yaml
 patchesStrategicMerge:
   - patch-kk-payments-configmap.yaml
+  - patch-kijani-ingress.yaml
