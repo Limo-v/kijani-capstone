@@ -33,9 +33,16 @@ Components summary:
 5. Validate manifests render:
    - kubectl kustomize --load-restrictor LoadRestrictionsNone k8s/overlays/staging
    - kubectl kustomize --load-restrictor LoadRestrictionsNone k8s/overlays/production
+   - Update secret values in k8s/kk-payments-secrets.yaml before using outside local/demo environments.
 6. Update ansible/inventory/inventory.ini with target hosts if you are provisioning infrastructure.
 7. Configure Jenkins job to use root Jenkinsfile.
    - For automatic runs on push, enable webhook triggering in Jenkins job configuration (GitHub hook trigger / multibranch webhook indexing).
+   - For local Jenkins service installs, configure kubeconfig for the Jenkins user:
+     - sudo mkdir -p /var/lib/jenkins/.kube
+     - sudo cp ~/.kube/config /var/lib/jenkins/.kube/config
+     - sudo chown -R jenkins:jenkins /var/lib/jenkins/.kube
+     - sudo chmod 700 /var/lib/jenkins/.kube && sudo chmod 600 /var/lib/jenkins/.kube/config
+     - sudo -u jenkins KUBECONFIG=/var/lib/jenkins/.kube/config kubectl config current-context
 8. Run pipeline with RUN_INFRA_PROVISION=false for deploy-only flow.
 9. Run pipeline with RUN_INFRA_PROVISION=true only when Terraform and Ansible credentials are configured.
 

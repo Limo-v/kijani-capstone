@@ -6,6 +6,7 @@ resources:
   - ../../kk-api-deployment.yaml
   - ../../kk-api-service.yaml
   - ../../kk-payments-configmap.yaml
+  - ../../kk-payments-secrets.yaml
   - ../../kk-payments-deployment.yaml
   - ../../kk-payments-service.yaml
   - ../../kijani-ingress.yaml
