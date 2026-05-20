@@ -8,8 +8,12 @@ pipeline {
         timestamps()
     }
 
+    triggers {
+        githubPush()
+    }
+
     parameters {
-        booleanParam(name: 'RUN_INFRA_PROVISION', defaultValue: false, description: 'Run scripts/provision-staging.sh validation checks before deployment.')
+        booleanParam(name: 'RUN_INFRA_PROVISION', defaultValue: false, description: 'Run Terraform and Ansible provisioning validation checks before deployment.')
     }
 
     environment {
@@ -49,8 +53,9 @@ pipeline {
             steps {
                 sh '''
                     set -euo pipefail
-                    chmod +x scripts/provision-staging.sh
-                    ./scripts/provision-staging.sh
+                    terraform -chdir=terraform init -backend=false -input=false >/dev/null
+                    terraform -chdir=terraform validate
+                    ansible-playbook -i ansible/inventory/inventory.ini ansible/playbook.yml --syntax-check
                 '''
             }
         }

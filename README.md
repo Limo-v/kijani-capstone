@@ -35,6 +35,7 @@ Components summary:
    - kubectl kustomize --load-restrictor LoadRestrictionsNone k8s/overlays/production
 6. Update ansible/inventory/inventory.ini with target hosts if you are provisioning infrastructure.
 7. Configure Jenkins job to use root Jenkinsfile.
+   - For automatic runs on push, enable webhook triggering in Jenkins job configuration (GitHub hook trigger / multibranch webhook indexing).
 8. Run pipeline with RUN_INFRA_PROVISION=false for deploy-only flow.
 9. Run pipeline with RUN_INFRA_PROVISION=true only when Terraform and Ansible credentials are configured.
 
