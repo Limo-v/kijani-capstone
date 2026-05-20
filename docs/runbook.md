@@ -21,9 +21,14 @@ Deploy kk-payments through staging first, validate smoke test, then promote to p
 - kubectl -n kijani-staging get pods -l app=kk-payments
 
 ## Fault Injection and Recovery
-- Inject fault by setting an invalid image tag in staging overlay.
-- Re-run pipeline and verify safe stop before production.
-- Restore valid tag and re-run pipeline.
+- Inject fault by setting an invalid image tag in staging:
+	- kubectl -n kijani-staging set image deployment/kk-payments kk-payments=ghcr.io/example/kk-payments:does-not-exist
+- Verify safe stop behavior:
+	- kubectl -n kijani-staging rollout status deployment/kk-payments --timeout=120s
+	- Confirm Jenkins does not proceed to production deploy after failed staging smoke validation.
+- Restore valid state and recover:
+	- kubectl kustomize --load-restrictor LoadRestrictionsNone k8s/overlays/staging | kubectl apply -f -
+	- kubectl -n kijani-staging rollout status deployment/kk-payments --timeout=180s
 
 ## Rollback
 - kubectl -n kijani-staging rollout undo deployment/kk-payments

@@ -5,6 +5,7 @@ Kijani Capstone is a Track A infrastructure-first DevOps project that deploys kk
 
 ## Architecture
 Architecture diagram: docs/architecture.png
+Version control policy: docs/version-control.md
 
 Components summary:
 - Terraform provisions infrastructure resources required for the staging and production workflow.
@@ -24,14 +25,30 @@ Components summary:
 
 ## Setup
 1. Clone this repository.
-2. Configure kubectl context to target cluster.
-3. Validate manifests render:
+2. Change into the project root:
+   - cd kijani-capstone
+3. Configure kubectl context to target cluster.
+4. Confirm active context before deployment work:
+   - kubectl config current-context
+5. Validate manifests render:
    - kubectl kustomize --load-restrictor LoadRestrictionsNone k8s/overlays/staging
    - kubectl kustomize --load-restrictor LoadRestrictionsNone k8s/overlays/production
-4. Update ansible/inventory/inventory.ini with target hosts if you are provisioning infrastructure.
-5. Configure Jenkins job to use root Jenkinsfile.
-6. Run pipeline with RUN_INFRA_PROVISION=false for deploy-only flow.
-7. Run pipeline with RUN_INFRA_PROVISION=true only when Terraform and Ansible credentials are configured.
+6. Update ansible/inventory/inventory.ini with target hosts if you are provisioning infrastructure.
+7. Configure Jenkins job to use root Jenkinsfile.
+8. Run pipeline with RUN_INFRA_PROVISION=false for deploy-only flow.
+9. Run pipeline with RUN_INFRA_PROVISION=true only when Terraform and Ansible credentials are configured.
+
+## Failure-path dry run (staging only)
+Use this to prove the pipeline stops safely before production when staging is unhealthy.
+
+1. Inject a bad image tag in staging:
+   - kubectl -n kijani-staging set image deployment/kk-payments kk-payments=ghcr.io/example/kk-payments:does-not-exist
+2. Verify rollout fails:
+   - kubectl -n kijani-staging rollout status deployment/kk-payments --timeout=120s
+3. Restore expected state from overlay:
+   - kubectl kustomize --load-restrictor LoadRestrictionsNone k8s/overlays/staging | kubectl apply -f -
+4. Confirm healthy rollout:
+   - kubectl -n kijani-staging rollout status deployment/kk-payments --timeout=180s
 
 ## Pipeline run process
 1. Build and Test.
