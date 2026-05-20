@@ -1,6 +1,7 @@
 # Screenshot Evidence Index
 
 Leave file links blank until pipeline execution is complete. Fill them after each real run.
+Execution guide: docs/evidence/screenshot-capture-guide.md
 
 | Screenshot file | What happened | Rubric requirement proved | Link/status |
 |---|---|---|---|
@@ -16,3 +17,4 @@ Leave file links blank until pipeline execution is complete. Fill them after eac
 | 10-recovery-success.png | Recovery action succeeded | Recovery evidence | PENDING |
 | 11-final-healthy-state.png | Final healthy pipeline or app state | End-state verification | PENDING |
 | 12-governance-log-proof.png | AI governance log entry screenshot | AI governance evidence | PENDING |
+

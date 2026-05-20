@@ -22,6 +22,7 @@ pipeline {
         STAGING_OVERLAY = 'k8s/overlays/staging'
         PRODUCTION_OVERLAY = 'k8s/overlays/production'
         SMOKE_TEST_TIMEOUT = '180s'
+        KUBECONFIG = '/var/lib/jenkins/.kube/config'
     }
 
     stages {
@@ -42,6 +43,32 @@ pipeline {
                     kubectl kustomize --load-restrictor LoadRestrictionsNone "$STAGING_OVERLAY" > /tmp/staging-render.yaml
                     kubectl kustomize --load-restrictor LoadRestrictionsNone "$PRODUCTION_OVERLAY" > /tmp/production-render.yaml
                     echo "Kustomize render succeeded for staging and production overlays"
+                '''
+            }
+        }
+
+        stage('Validate Cluster Access') {
+            steps {
+                sh '''
+                    set -euo pipefail
+                    if [[ ! -f "$KUBECONFIG" ]]; then
+                      echo "ERROR: Jenkins kubeconfig not found at $KUBECONFIG"
+                      echo "Create /var/lib/jenkins/.kube/config with a valid cluster context for Jenkins."
+                      exit 1
+                    fi
+
+                    SERVER_URL="$(kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}' 2>/dev/null || true)"
+                    if [[ -z "$SERVER_URL" ]] || [[ "$SERVER_URL" == "http://localhost:8080" ]] || [[ "$SERVER_URL" == "https://localhost:8080" ]]; then
+                      echo "ERROR: kubectl is targeting localhost:8080 or has no valid cluster server."
+                      echo "This usually means Jenkins has no real kubeconfig context configured."
+                      exit 1
+                    fi
+
+                    kubectl config current-context
+                    kubectl cluster-info >/dev/null
+                    kubectl -n "$STAGING_NAMESPACE" get ns "$STAGING_NAMESPACE" >/dev/null
+                    kubectl -n "$PRODUCTION_NAMESPACE" get ns "$PRODUCTION_NAMESPACE" >/dev/null
+                    echo "Cluster access validation succeeded"
                 '''
             }
         }
